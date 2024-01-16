@@ -1,15 +1,20 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import * as Joi from 'Joi';
-import { Module } from '@nestjs/common';
-import { GraphQLModule } from '@nestjs/graphql';
-import { RestaurantsModule } from './restaurants/restaurants.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { Restaurant } from './restaurants/entities/restaurant.entity';
-import { UsersModule } from './users/users.module';
+import { GraphQLModule } from '@nestjs/graphql';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import * as Joi from 'Joi';
 import { CommonModule } from './common/common.module';
-import { User } from './users/entities/user.entity';
 import { JwtModule } from './jwt/jwt.module';
+import { User } from './users/entities/user.entity';
+import { UsersModule } from './users/users.module';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
+import { JwtMiddleware } from './jwt/jwt.middleware';
+import { AuthModule } from './auth/auth.module';
 
 console.log(Joi);
 
@@ -18,6 +23,7 @@ console.log(Joi);
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
+      context: ({ req }) => ({ user: req['user'] }),
     }),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -48,9 +54,15 @@ console.log(Joi);
       privateKey: process.env.PRIVATE_KEY,
     }),
     UsersModule,
-    CommonModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(JwtMiddleware).forRoutes({
+      path: 'graphql',
+      method: RequestMethod.POST,
+    });
+  }
+}
