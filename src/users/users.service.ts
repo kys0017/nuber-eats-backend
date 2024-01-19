@@ -7,6 +7,7 @@ import { LoginInput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
 import { EditProfileInput } from './dtos/edit-profile.dto';
 import { Verification } from './entities/verification.entity';
+import { VerifyEmailOuput } from './dtos/verify-email.dto';
 
 @Injectable()
 export class UsersService {
@@ -103,7 +104,7 @@ export class UsersService {
     return this.users.save(user);
   }
 
-  async verifyEmail(code: string): Promise<boolean> {
+  async verifyEmail(code: string): Promise<VerifyEmailOuput> {
     try {
       const verification = await this.verifications.findOne({
         where: { code },
@@ -111,14 +112,13 @@ export class UsersService {
       });
       if (verification) {
         verification.user.verified = true;
-        console.log(verification.user);
-        this.users.save(verification.user);
-        return true;
+        await this.users.save(verification.user);
+        await this.verifications.delete(verification.id);
+        return { ok: true };
       }
-      throw new Error();
-    } catch (e) {
-      console.log(e);
-      return false;
+      return { ok: false, error: 'Verification not found' };
+    } catch (error) {
+      return { ok: false, error };
     }
   }
 }
