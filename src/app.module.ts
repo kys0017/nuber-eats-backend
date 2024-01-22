@@ -60,8 +60,9 @@ console.log(Joi);
     }),
     MailModule.forRoot({
       apiKey: process.env.MAILGUN_API_KEY,
-      fromEmail: process.env.MAILGUN_DOMAIN_NAME,
-      domain: process.env.MAILGUN_FROM_EMAIL,
+      fromEmail: process.env.MAILGUN_FROM_EMAIL,
+      domain: process.env.MAILGUN_DOMAIN_NAME,
+      myEmail: process.env.MY_EMAIL, // mailgun 무료 버전이라 내 이메일 숨김 용도.
     }),
     UsersModule,
   ],
