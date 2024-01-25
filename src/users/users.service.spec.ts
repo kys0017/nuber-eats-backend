@@ -14,7 +14,7 @@ const mockRepository = () => ({
 });
 
 const mockJwtService = {
-  sign: jest.fn(),
+  sign: jest.fn(() => 'signed-token-baby'),
   verify: jest.fn(),
 };
 
@@ -29,8 +29,9 @@ describe('UserService', () => {
   let usersRepository: MockRepository<User>;
   let verificationsRepository: MockRepository<Verification>;
   let mailService: MailService;
+  let jwtService: JwtService;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const modules = await Test.createTestingModule({
       providers: [
         UsersService,
@@ -55,6 +56,7 @@ describe('UserService', () => {
 
     service = modules.get<UsersService>(UsersService);
     mailService = modules.get<MailService>(MailService);
+    jwtService = modules.get<JwtService>(JwtService);
     usersRepository = modules.get(getRepositoryToken(User));
     verificationsRepository = modules.get(getRepositoryToken(Verification));
   });
@@ -135,14 +137,39 @@ describe('UserService', () => {
       const result = await service.login(loginArgs);
 
       expect(usersRepository.findOne).toHaveBeenCalledTimes(1);
-      expect(usersRepository.findOne).toHaveBeenCalledWith(
-        expect.any(Object),
-        expect.any(Object),
-      );
+      expect(usersRepository.findOne).toHaveBeenCalledWith({
+        where: expect.any(Object),
+        select: ['id', 'password'],
+      });
       expect(result).toEqual({
         ok: false,
         error: 'User not found',
       });
+    });
+
+    it('should fail is the password is wrong', async () => {
+      const mockedUser = {
+        checkPassword: jest.fn(() => Promise.resolve(false)), // mockResolvedValue() 와 같은 역할을 함.
+      };
+      usersRepository.findOne.mockResolvedValue(mockedUser);
+      const result = await service.login(loginArgs);
+      expect(result).toEqual({
+        ok: false,
+        error: 'Wrong password',
+      });
+    });
+
+    it('should return token if password is correct', async () => {
+      const mockedUser = {
+        id: 1,
+        checkPassword: jest.fn(() => Promise.resolve(true)), // mockResolvedValue() 와 같은 역할을 함.
+      };
+      usersRepository.findOne.mockResolvedValue(mockedUser);
+      const result = await service.login(loginArgs);
+      console.log(result);
+      expect(jwtService.sign).toHaveBeenCalledTimes(1);
+      expect(jwtService.sign).toHaveBeenCalledWith(expect.any(Number));
+      expect(result).toEqual({ ok: true, token: 'signed-token-baby' });
     });
   });
 
