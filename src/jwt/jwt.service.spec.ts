@@ -1,6 +1,14 @@
 import { Test } from '@nestjs/testing';
+import * as jwt from 'jsonwebtoken';
 import { JwtService } from './jwt.service';
 import { CONFIG_OPTIONS } from 'src/common/common.constants';
+
+// depedency mocking
+jest.mock('jsonwebtoken', () => {
+  return {
+    sign: jest.fn(() => 'TOKEN'),
+  };
+});
 
 const TEST_KEY = 'TestKey';
 
@@ -24,6 +32,17 @@ describe('JwtService', () => {
     expect(service).toBeDefined();
   });
 
-  it.todo('sign');
-  it.todo('verify');
+  describe('sign', () => {
+    it('should return a singed token', () => {
+      const ID = 1;
+      const token = service.sign(ID);
+      expect(typeof token).toBe('string');
+      expect(jwt.sign).toHaveBeenCalledTimes(1);
+      expect(jwt.sign).toHaveBeenLastCalledWith({ id: ID }, TEST_KEY);
+    });
+  });
+
+  describe('verify', () => {
+    it('should return the decoded token', () => {});
+  });
 });

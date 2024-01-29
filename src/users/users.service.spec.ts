@@ -126,7 +126,7 @@ describe('UserService', () => {
     it('should fail on exception', async () => {
       usersRepository.findOne.mockRejectedValue(new Error());
       const result = await service.createAccount(createAccountArgs);
-      console.log(result);
+      // console.log(result);
       expect(result).toEqual({ ok: false, error: "Couldn't create account" });
     });
   });
@@ -168,7 +168,7 @@ describe('UserService', () => {
       };
       usersRepository.findOne.mockResolvedValue(mockedUser);
       const result = await service.login(loginArgs);
-      console.log(result);
+      // console.log(result);
       expect(jwtService.sign).toHaveBeenCalledTimes(1);
       expect(jwtService.sign).toHaveBeenCalledWith(expect.any(Number));
       expect(result).toEqual({ ok: true, token: 'signed-token-baby' });
