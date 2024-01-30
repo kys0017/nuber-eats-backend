@@ -12,11 +12,7 @@ export class MailService {
     // this.sendEmail('testing', 'test');
   }
 
-  private async sendEmail(
-    subject: string,
-    template: string,
-    emailVars: EmailVar[],
-  ) {
+  async sendEmail(subject: string, template: string, emailVars: EmailVar[]) {
     const form = new FormData();
     form.append(
       'from',
