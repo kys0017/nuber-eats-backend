@@ -18,7 +18,7 @@ import { AuthModule } from './auth/auth.module';
 import { Verification } from './users/entities/verification.entity';
 import { MailModule } from './mail/mail.module';
 
-console.log(Joi);
+//console.log(Joi);
 
 @Module({
   imports: [
@@ -55,6 +55,7 @@ console.log(Joi);
       logging:
         process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
       entities: [User, Verification],
+      // keepConnectionAlive: process.env.NODE_ENV === 'test',
     }),
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY,
