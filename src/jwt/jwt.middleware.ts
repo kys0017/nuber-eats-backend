@@ -2,6 +2,7 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { JwtService } from './jwt.service';
 import { UsersService } from 'src/users/users.service';
+import { ok } from 'assert';
 
 @Injectable()
 export class JwtMiddleware implements NestMiddleware {
@@ -15,9 +16,11 @@ export class JwtMiddleware implements NestMiddleware {
       try {
         const decoded = this.jwtService.verify(token.toString());
         if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
-          const user = await this.userService.findById(decoded['id']);
-          console.log(user);
-          req['user'] = user;
+          const { user, ok } = await this.userService.findById(decoded['id']);
+          // console.log(user);
+          if (ok) {
+            req['user'] = user;
+          }
         }
       } catch (error) {}
     }
