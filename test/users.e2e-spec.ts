@@ -397,8 +397,6 @@ describe('UserModule (e2e)', () => {
             },
           } = res;
 
-          console.log('fail test', res.body);
-
           expect(ok).toBe(false);
           expect(error).toBe('Verification not found');
         });

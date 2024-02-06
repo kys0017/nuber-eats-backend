@@ -1,22 +1,23 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { ConfigModule } from '@nestjs/config';
-import { GraphQLModule } from '@nestjs/graphql';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import * as Joi from 'Joi';
-import { CommonModule } from './common/common.module';
-import { JwtModule } from './jwt/jwt.module';
-import { User } from './users/entities/user.entity';
-import { UsersModule } from './users/users.module';
 import {
   MiddlewareConsumer,
   Module,
   NestModule,
   RequestMethod,
 } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { GraphQLModule } from '@nestjs/graphql';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import * as Joi from 'Joi';
 import { JwtMiddleware } from './jwt/jwt.middleware';
-import { AuthModule } from './auth/auth.module';
-import { Verification } from './users/entities/verification.entity';
+import { JwtModule } from './jwt/jwt.module';
 import { MailModule } from './mail/mail.module';
+import { Category } from './restaurants/entities/category.entity';
+import { Restaurant } from './restaurants/entities/restaurant.entity';
+import { User } from './users/entities/user.entity';
+import { Verification } from './users/entities/verification.entity';
+import { UsersModule } from './users/users.module';
+import { RestaurantsModule } from './restaurants/restaurants.module';
 
 //console.log(Joi);
 
@@ -54,8 +55,7 @@ import { MailModule } from './mail/mail.module';
       synchronize: process.env.NODE_ENV !== 'prod',
       logging:
         process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
-      entities: [User, Verification],
-      // keepConnectionAlive: process.env.NODE_ENV === 'test',
+      entities: [User, Verification, Restaurant, Category],
     }),
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY,
@@ -67,6 +67,7 @@ import { MailModule } from './mail/mail.module';
       myEmail: process.env.MY_EMAIL, // mailgun 무료 버전이라 내 이메일 숨김 용도.
     }),
     UsersModule,
+    RestaurantsModule,
   ],
   controllers: [],
   providers: [],
