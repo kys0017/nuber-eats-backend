@@ -347,7 +347,7 @@ describe('UserModule (e2e)', () => {
 
     beforeAll(async () => {
       const [verification] = await verificationRepository.find();
-      console.log(verification);
+      //console.log(verification);
       verificationCode = verification.code;
     });
 
@@ -396,6 +396,8 @@ describe('UserModule (e2e)', () => {
               },
             },
           } = res;
+
+          console.log('fail test', res.body);
 
           expect(ok).toBe(false);
           expect(error).toBe('Verification not found');

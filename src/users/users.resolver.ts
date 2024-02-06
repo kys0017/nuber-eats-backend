@@ -95,9 +95,10 @@ export class UsersResolver {
     @Args('input') { code }: VerifyEmailInput,
   ): Promise<VerifyEmailOuput> {
     try {
-      this.usersService.verifyEmail(code);
+      const { ok, error } = await this.usersService.verifyEmail(code);
       return {
-        ok: true,
+        ok,
+        error,
       };
     } catch (error) {
       return {
