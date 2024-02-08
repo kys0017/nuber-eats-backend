@@ -18,6 +18,7 @@ import { User } from './users/entities/user.entity';
 import { Verification } from './users/entities/verification.entity';
 import { UsersModule } from './users/users.module';
 import { RestaurantsModule } from './restaurants/restaurants.module';
+import { AuthModule } from './auth/auth.module';
 
 //console.log(Joi);
 
@@ -66,6 +67,7 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
       domain: process.env.MAILGUN_DOMAIN_NAME,
       myEmail: process.env.MY_EMAIL, // mailgun 무료 버전이라 내 이메일 숨김 용도.
     }),
+    AuthModule,
     UsersModule,
     RestaurantsModule,
   ],
