@@ -1,44 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
 } from './dtos/create-restaurant.dto';
-import { Restaurant } from './entities/restaurant.entity';
-import { User } from 'src/users/entities/user.entity';
-import { Category } from './entities/category.entity';
 import {
   EditRestaurantInput,
   EditRestaurantOutput,
 } from './dtos/edit-restaurant.dto';
+import { Restaurant } from './entities/restaurant.entity';
+import { CategoryRepository } from './repositories/category.repository';
+import { Category } from './entities/category.entity';
 
 @Injectable()
 export class RestaurantService {
   constructor(
     @InjectRepository(Restaurant)
     private readonly restaurants: Repository<Restaurant>,
-    @InjectRepository(Category)
-    private readonly categories: Repository<Category>,
+    private readonly categories: CategoryRepository,
   ) {}
-
-  async getOrCreateCategory(name: string): Promise<Category> {
-    const categoryName = name.trim().toLowerCase();
-    const categogrySlug = categoryName.replace(/ /g, '-'); // 정규표현식이 아닌 replace(' ', '-') 는 첫번째 blank 만 - 로 바뀜.
-    let category = await this.categories.findOne({
-      where: { slug: categogrySlug },
-    });
-    if (!category) {
-      category = await this.categories.save(
-        this.categories.create({
-          slug: categogrySlug,
-          name: categoryName,
-        }),
-      );
-    }
-
-    return category;
-  }
 
   async createRestaurant(
     owner: User,
@@ -47,7 +29,7 @@ export class RestaurantService {
     try {
       const newRestaurant = this.restaurants.create(createRestaurantInput);
       newRestaurant.owner = owner;
-      const category = await this.getOrCreateCategory(
+      const category = await this.categories.getOrCreate(
         createRestaurantInput.categoryName,
       );
       newRestaurant.category = category;
@@ -84,7 +66,19 @@ export class RestaurantService {
           error: "You can't edit a restaurant that you don't own",
         };
       }
-
+      let category: Category = null;
+      if (editRestaurantInput.categoryName) {
+        category = await this.categories.getOrCreate(
+          editRestaurantInput.categoryName,
+        );
+      }
+      await this.restaurants.save([
+        {
+          id: editRestaurantInput.restaurantId,
+          ...editRestaurantInput,
+          ...(category && { category }),
+        },
+      ]);
       return {
         ok: true,
       };
