@@ -1,8 +1,12 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { DataSource, EntityRepository, Repository } from 'typeorm';
 import { Category } from '../entities/category.entity';
 
 @EntityRepository(Category)
 export class CategoryRepository extends Repository<Category> {
+  constructor(dataSource: DataSource) {
+    super(Category, dataSource.createEntityManager());
+  }
+
   async getOrCreate(name: string): Promise<Category> {
     const categoryName = name.trim().toLowerCase();
     const categogrySlug = categoryName.replace(/ /g, '-'); // 정규표현식이 아닌 replace(' ', '-') 는 첫번째 blank 만 - 로 바뀜.
