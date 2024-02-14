@@ -72,7 +72,7 @@ export class CategoryResolver {
 
   @ResolveField((type) => Int)
   restaurantCount(@Parent() category: Category): Promise<number> {
-    return this.restaurantService.countCategory(category);
+    return this.restaurantService.countRestaurants(category);
   }
 
   @Query((type) => AllCategoriesOutput)
@@ -81,7 +81,9 @@ export class CategoryResolver {
   }
 
   @Query((type) => CategoryOutput)
-  category(@Args() categoryInput: CategoryInput): Promise<CategoryOutput> {
+  category(
+    @Args('input') categoryInput: CategoryInput,
+  ): Promise<CategoryOutput> {
     return this.restaurantService.findCategoryBySlug(categoryInput);
   }
 }
