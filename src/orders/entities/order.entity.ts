@@ -50,9 +50,9 @@ export class Order extends CoreEntity {
   @JoinTable() // 소유하고 있는 쪽의 relation 에 추가. order 에서 어떤 고객이 dish 를 주문했는지 알 수 있으므로 order 에 명시.
   dishes: Dish[];
 
-  @Column()
-  @Field((type) => Float)
-  total: number;
+  @Column({ nullable: true })
+  @Field((type) => Float, { nullable: true })
+  total?: number;
 
   @Column({ type: 'enum', enum: OrderStatus })
   @Field((type) => OrderStatus)
