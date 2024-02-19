@@ -9,7 +9,14 @@ import { IsEnum, IsNumber } from 'class-validator';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  RelationId,
+} from 'typeorm';
 import { OrderItem } from './order-item.entity';
 
 export enum OrderStatus {
@@ -32,12 +39,18 @@ export class Order extends CoreEntity {
   })
   customer?: User;
 
+  @RelationId((order: Order) => order.customer)
+  customerId: number;
+
   @Field((type) => User, { nullable: true }) // 주문 했을 때 바로 배달 해주는 사람이 없으므로 nullable
   @ManyToOne((type) => User, (user) => user.rides, {
     onDelete: 'SET NULL', // user 를 지워도 order 를 지우지 않기 위함.
     nullable: true,
   })
   driver: User;
+
+  @RelationId((order: Order) => order.driver)
+  driverId: number;
 
   @Field((type) => Restaurant, { nullable: true })
   @ManyToOne((type) => Restaurant, (restaurant) => restaurant.orders, {
