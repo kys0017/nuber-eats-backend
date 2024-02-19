@@ -36,26 +36,63 @@ export class OrderService {
           error: 'Restaurant not found',
         };
       }
-      items.forEach(async (item) => {
+      let orderFinalPrice = 0;
+      const orderItems: OrderItem[] = [];
+      for (const item of items) {
+        // 혼동 X !
+        // item.options -> user 가 보낸 options (OrderItemOption[])
+        // dish.options -> owner 가 만든 options (DishOption[])
         const dish = await this.dishes.findOne({ where: { id: item.dishId } });
         if (!dish) {
-          // abort this whole thing
+          return {
+            ok: false,
+            error: 'Dish not found',
+          };
         }
-        await this.orderItems.save(
+        let dishFinalPrice = dish.price;
+        // console.log(`Dish price: ${dish.price}`);
+        for (const itemOption of item.options) {
+          const dishOption = dish.options.find(
+            (dishOption) => dishOption.name === itemOption.name,
+          );
+          if (dishOption) {
+            if (dishOption.extra) {
+              dishFinalPrice = dishFinalPrice + dishOption.extra;
+            } else {
+              const dishOptionChoice = dishOption.choices.find(
+                (optionChoice) => optionChoice.name === itemOption.choice,
+              );
+              if (dishOptionChoice) {
+                if (dishOptionChoice.extra) {
+                  // console.log(`$USD + ${dishOptionChoice.extra}`);
+                  dishFinalPrice = dishFinalPrice + dishOptionChoice.extra;
+                }
+              }
+            }
+          }
+        }
+        orderFinalPrice = orderFinalPrice + dishFinalPrice;
+
+        const orderItem = await this.orderItems.save(
           this.orderItems.create({
             dish,
             options: item.options,
           }),
         );
-      });
+        orderItems.push(orderItem);
+      }
+      await this.orders.save(
+        this.orders.create({
+          customer,
+          restaurant,
+          total: orderFinalPrice,
+          items: orderItems,
+        }),
+      );
 
-      // const order = await this.orders.save(
-      //   this.orders.create({
-      //     customer,
-      //     restaurant,
-      //   }),
-      // );
-      // console.log(order);
+      return {
+        ok: true,
+      };
     } catch (error) {
       return {
         ok: false,
