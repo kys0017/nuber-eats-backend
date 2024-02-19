@@ -1,10 +1,11 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Order } from './entities/order.entity';
 import { OrderService } from './orders.service';
 import { CreateOrderInput, CreateOrderOuput } from './dtos/create-order.dto';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { Role } from 'src/auth/role.decorator';
+import { GetOrdersInput, GetOrdersOutput } from './dtos/get-orders.dto';
 
 @Resolver((of) => Order)
 export class OrderResolver {
@@ -17,5 +18,14 @@ export class OrderResolver {
     @Args('input') createOrderInput: CreateOrderInput,
   ): Promise<CreateOrderOuput> {
     return this.ordersService.createOrder(customer, createOrderInput);
+  }
+
+  @Query((returns) => GetOrdersOutput)
+  @Role(['Any']) // 로그인 되어 있는 누구나.
+  async getOrders(
+    @AuthUser() user: User,
+    @Args('input') getOrdersInput: GetOrdersInput,
+  ): Promise<GetOrdersOutput> {
+    return this.ordersService.getOrders(user, getOrdersInput);
   }
 }
