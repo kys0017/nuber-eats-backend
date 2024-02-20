@@ -1,4 +1,4 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { Order } from './entities/order.entity';
 import { OrderService } from './orders.service';
 import { CreateOrderInput, CreateOrderOuput } from './dtos/create-order.dto';
@@ -8,6 +8,9 @@ import { Role } from 'src/auth/role.decorator';
 import { GetOrdersInput, GetOrdersOutput } from './dtos/get-orders.dto';
 import { GetOrderInput, GetOrderOutput } from './dtos/get-order.dto';
 import { EditOrderInput, EditOrderOutput } from './dtos/edit-order.dto';
+import { PubSub } from 'graphql-subscriptions';
+
+const pubsub = new PubSub();
 
 @Resolver((of) => Order)
 export class OrderResolver {
@@ -47,5 +50,18 @@ export class OrderResolver {
     @Args('input') editOrderIntput: EditOrderInput,
   ): Promise<EditOrderOutput> {
     return this.ordersService.editOrder(user, editOrderIntput);
+  }
+
+  @Mutation((returns) => Boolean)
+  potatoReady() {
+    pubsub.publish('hotPotatoes', {
+      readyPotatoes: 'Your potato is  ready. Love you.',
+    });
+    return true;
+  }
+
+  @Subscription((returns) => String) // graphQL return 은 String 이지만, 함수에서 string 을 리턴하지 않는다.
+  readyPotatoes() {
+    return pubsub.asyncIterator('hotPotatoes');
   }
 }
