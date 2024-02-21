@@ -18,6 +18,7 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
 import { User } from './users/entities/user.entity';
 import { Verification } from './users/entities/verification.entity';
 import { UsersModule } from './users/users.module';
+import { CommonModule } from './common/common.module';
 
 //console.log(Joi);
 
@@ -94,6 +95,7 @@ const TOKEN_KEY = 'x-jwt';
     UsersModule,
     RestaurantsModule,
     OrdersModule,
+    CommonModule,
   ],
   controllers: [],
   providers: [],
