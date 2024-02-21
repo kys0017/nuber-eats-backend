@@ -61,7 +61,9 @@ export class OrderResolver {
   }
 
   @Subscription((returns) => String) // graphQL return 은 String 이지만, 함수에서 string 을 리턴하지 않는다.
-  readyPotatoes() {
+  @Role(['Any'])
+  readyPotatoes(@AuthUser() user: User) {
+    console.log(user);
     return pubsub.asyncIterator('hotPotatoes');
   }
 }

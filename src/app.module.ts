@@ -1,40 +1,47 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Joi from 'Joi';
-import { JwtMiddleware } from './jwt/jwt.middleware';
+import { Context } from 'graphql-ws';
+import { AuthModule } from './auth/auth.module';
 import { JwtModule } from './jwt/jwt.module';
 import { MailModule } from './mail/mail.module';
+import { OrderItem } from './orders/entities/order-item.entity';
+import { Order } from './orders/entities/order.entity';
+import { OrdersModule } from './orders/orders.module';
 import { Category } from './restaurants/entities/category.entity';
+import { Dish } from './restaurants/entities/dish.entity';
 import { Restaurant } from './restaurants/entities/restaurant.entity';
+import { RestaurantsModule } from './restaurants/restaurants.module';
 import { User } from './users/entities/user.entity';
 import { Verification } from './users/entities/verification.entity';
 import { UsersModule } from './users/users.module';
-import { RestaurantsModule } from './restaurants/restaurants.module';
-import { AuthModule } from './auth/auth.module';
-import { Dish } from './restaurants/entities/dish.entity';
-import { OrdersModule } from './orders/orders.module';
-import { Order } from './orders/entities/order.entity';
-import { OrderItem } from './orders/entities/order-item.entity';
 
 //console.log(Joi);
 
+const TOKEN_KEY = 'x-jwt';
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       installSubscriptionHandlers: true,
       driver: ApolloDriver,
       autoSchemaFile: true,
-      context: ({ req }) => {
+      subscriptions: {
+        'graphql-ws': {
+          path: '/graphql',
+          onConnect: (context: Context<any>) => {
+            const { connectionParams, extra } = context;
+            // when using with graphql-ws, additional context value should be stored in the extra field
+            extra[TOKEN_KEY] = { [TOKEN_KEY]: connectionParams[TOKEN_KEY] };
+          },
+        },
+      },
+      context: ({ req, extra }) => {
+        // console.log(req?.headers ? '=== http ===' : '=== ws ===');
         return {
-          user: req['user'],
+          token: req?.headers ? req.headers[TOKEN_KEY] : extra[TOKEN_KEY],
         };
       },
     }),
@@ -92,11 +99,4 @@ import { OrderItem } from './orders/entities/order-item.entity';
   controllers: [],
   providers: [],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtMiddleware).forRoutes({
-      path: 'graphql',
-      method: RequestMethod.POST,
-    });
-  }
-}
+export class AppModule {}
