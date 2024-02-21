@@ -25,7 +25,6 @@ const TOKEN_KEY = 'x-jwt';
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
-      installSubscriptionHandlers: true,
       driver: ApolloDriver,
       autoSchemaFile: true,
       subscriptions: {
@@ -34,7 +33,7 @@ const TOKEN_KEY = 'x-jwt';
           onConnect: (context: Context<any>) => {
             const { connectionParams, extra } = context;
             // when using with graphql-ws, additional context value should be stored in the extra field
-            extra[TOKEN_KEY] = { [TOKEN_KEY]: connectionParams[TOKEN_KEY] };
+            extra[TOKEN_KEY] = connectionParams[TOKEN_KEY];
           },
         },
       },
