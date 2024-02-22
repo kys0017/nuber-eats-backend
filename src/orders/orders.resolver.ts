@@ -67,6 +67,8 @@ export class OrderResolver {
     filter: ({ readyPotato }, { potatoId }) => {
       return readyPotato === potatoId;
     },
+    resolve: ({ readyPotato }) =>
+      `Your potato with the id ${readyPotato} is ready!`,
   }) // graphQL return 은 String 이지만, 함수에서 string 을 리턴하지 않는다.
   @Role(['Any'])
   readyPotato(@Args('potatoId') potatoId: number) {
