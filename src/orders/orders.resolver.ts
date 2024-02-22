@@ -56,17 +56,20 @@ export class OrderResolver {
   }
 
   @Mutation((returns) => Boolean)
-  potatoReady() {
-    this.pubSub.publish('hotPotatoes', {
-      readyPotato: 'Your potato is  ready. Love you.',
+  async potatoReady(@Args('potatoId') potatoId: number) {
+    await this.pubSub.publish('hotPotatoes', {
+      readyPotato: potatoId,
     });
     return true;
   }
 
-  @Subscription((returns) => String) // graphQL return 은 String 이지만, 함수에서 string 을 리턴하지 않는다.
+  @Subscription((returns) => String, {
+    filter: ({ readyPotato }, { potatoId }) => {
+      return readyPotato === potatoId;
+    },
+  }) // graphQL return 은 String 이지만, 함수에서 string 을 리턴하지 않는다.
   @Role(['Any'])
-  readyPotato(@AuthUser() user: User) {
-    console.log(user);
+  readyPotato(@Args('potatoId') potatoId: number) {
     return this.pubSub.asyncIterator('hotPotatoes');
   }
 }
