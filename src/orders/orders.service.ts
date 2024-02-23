@@ -12,6 +12,7 @@ import { Order, OrderStatus } from './entities/order.entity';
 import { EditOrderInput, EditOrderOutput } from './dtos/edit-order.dto';
 import {
   NEW_COOKED_ORDER,
+  NEW_ORDER_UPDATE,
   NEW_PENDING_ORDER,
   PUB_SUB,
 } from 'src/common/common.constants';
@@ -207,7 +208,6 @@ export class OrderService {
     try {
       const order = await this.orders.findOne({
         where: { id: orderId },
-        relations: ['restaurant'],
       });
       if (!order) {
         return {
@@ -248,14 +248,15 @@ export class OrderService {
         id: orderId,
         status,
       });
-
+      const newOrder = { ...order, status };
       if (user.role === UserRole.Owner) {
         if (status === 'Cooked') {
-          this.pubSub.publish(NEW_COOKED_ORDER, {
-            cookedOrders: { ...order, status }, // cookedOrder 리졸버에 order entity 를 모두 내려줘야 하므로.
+          await this.pubSub.publish(NEW_COOKED_ORDER, {
+            cookedOrders: newOrder, // cookedOrder 리졸버에 order entity 모두 내려줘야 하므로. (create 로 save 가 아닌, 부분적으로 save 하면 수정된 필드만 오브젝트에 담아 리턴해 줌.)
           });
         }
       }
+      await this.pubSub.publish(NEW_ORDER_UPDATE, { orderUpdates: newOrder }); // 로그인 한 모두가 보는 용도
 
       return {
         ok: true,

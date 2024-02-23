@@ -37,6 +37,7 @@ export class Order extends CoreEntity {
   @ManyToOne((type) => User, (user) => user.orders, {
     onDelete: 'SET NULL', // user 를 지워도 order 를 지우지 않기 위함.
     nullable: true,
+    eager: true,
   })
   customer?: User;
 
@@ -47,6 +48,7 @@ export class Order extends CoreEntity {
   @ManyToOne((type) => User, (user) => user.rides, {
     onDelete: 'SET NULL', // user 를 지워도 order 를 지우지 않기 위함.
     nullable: true,
+    eager: true,
   })
   driver: User;
 
@@ -57,11 +59,12 @@ export class Order extends CoreEntity {
   @ManyToOne((type) => Restaurant, (restaurant) => restaurant.orders, {
     onDelete: 'SET NULL', // user 를 지워도 order 를 지우지 않기 위함.
     nullable: true,
+    eager: true,
   })
   restaurant?: Restaurant;
 
   @Field((type) => [OrderItem])
-  @ManyToMany((type) => OrderItem)
+  @ManyToMany((type) => OrderItem, { eager: true })
   @JoinTable() // 소유하고 있는 쪽의 relation 에 추가. order 에서 어떤 고객이 dish 를 주문했는지 알 수 있으므로 order 에 명시.
   items: OrderItem[];
 
