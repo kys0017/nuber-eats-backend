@@ -21,6 +21,7 @@ import { UsersModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
 import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/entities/payment.entity';
+import { ScheduleModule } from '@nestjs/schedule';
 
 //console.log(Joi);
 
@@ -85,6 +86,7 @@ const TOKEN_KEY = 'x-jwt';
         Payment,
       ],
     }),
+    ScheduleModule.forRoot(),
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY,
     }),
