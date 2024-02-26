@@ -41,6 +41,11 @@ export class PaymentService {
           error: 'You are not allowed to do this.',
         };
       }
+      restaurant.isPromoted = true;
+      const date = new Date();
+      date.setDate(date.getDate() + 7);
+      restaurant.promotedUntil = date;
+      this.restaurants.save(restaurant);
 
       await this.payments.save(
         this.payments.create({
@@ -76,24 +81,5 @@ export class PaymentService {
         error: 'Could not load payments.',
       };
     }
-  }
-
-  @Cron('30 * * * * *', {
-    name: 'myJob',
-  })
-  async checkForPayments() {
-    console.log('Checking for payments...(cron)');
-    const job = this.schedulerRegistry.getCronJob('myJob');
-    job.stop();
-  }
-
-  @Interval(5000)
-  async checkForPaymentsInterval() {
-    console.log('Checking for payments...(interval)');
-  }
-
-  @Timeout(20000)
-  afterStarts() {
-    console.log('Congrats!');
   }
 }
