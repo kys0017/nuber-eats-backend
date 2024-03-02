@@ -8,7 +8,7 @@ async function bootstrap() {
   app.enableCors({
     origin: ['http://localhost:3000', 'https://studio.apollographql.com'],
     methods: ['GET', 'POST'],
-    allowedHeaders: 'Content-Type, Accept',
+    allowedHeaders: 'Content-Type, Accept, x-jwt',
     credentials: true,
   });
   await app.listen(4000);
