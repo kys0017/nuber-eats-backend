@@ -135,8 +135,7 @@ export class UsersService {
         relations: ['user'],
       });
       if (verification) {
-        verification.user.verified = true;
-        await this.users.save(verification.user);
+        await this.users.save({ ...verification.user, verified: true });
         await this.verifications.delete(verification.id);
         return { ok: true };
       }
