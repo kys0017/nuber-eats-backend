@@ -166,6 +166,8 @@ export class RestaurantService {
     page,
   }: CategoryInput): Promise<CategoryOutput> {
     try {
+      const pageSize = 3;
+      // const pageSize = 25
       const category = await this.categories.findOne({ where: { slug } });
       if (!category) {
         return {
@@ -179,8 +181,8 @@ export class RestaurantService {
           isPromoted: 'DESC',
         },
         // pagination 적용!
-        take: 25,
-        skip: (page - 1) * 25,
+        take: pageSize,
+        skip: (page - 1) * pageSize,
       });
       const totalResults = await this.countRestaurants(category);
 
@@ -188,7 +190,8 @@ export class RestaurantService {
         ok: true,
         restaurants,
         category,
-        totalPages: Math.ceil(totalResults / 25),
+        totalPages: Math.ceil(totalResults / pageSize),
+        totalResults,
       };
     } catch (error) {
       return {
