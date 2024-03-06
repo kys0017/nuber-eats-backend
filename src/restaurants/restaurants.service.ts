@@ -260,17 +260,19 @@ export class RestaurantService {
     page,
   }: SearchRestaurantInput): Promise<SearchRestaurantOutput> {
     try {
+      const pageSize = 3;
+      // const pageSize = 25
       const [restaurants, totalResults] = await this.restaurants.findAndCount({
         where: { name: Raw((name) => `${name} ILIKE '%${query}%'`) }, // case insensitive(ILIKE) 를 위해 Raw 사용해서 sql로 직접 db 에 접근.
-        take: 25,
-        skip: (page - 1) * 25,
+        take: pageSize,
+        skip: (page - 1) * pageSize,
       });
 
       return {
         ok: true,
         restaurants,
         totalResults,
-        totalPages: Math.ceil(totalResults / 25),
+        totalPages: Math.ceil(totalResults / pageSize),
       };
     } catch {
       return {
