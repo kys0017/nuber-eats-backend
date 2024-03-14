@@ -29,6 +29,7 @@ import { CreateDishInput, CreateDishOutput } from './dtos/create-dish.dto';
 import { Dish } from './entities/dish.entity';
 import { EditDishInput, EditDishOutput } from './dtos/edit-dish.dto';
 import { DeleteDishInput, DeleteDishOutput } from './dtos/delete-dish.dto';
+import { MyRestaurantsInput } from './dtos/my-restaurants.dto';
 
 @Injectable()
 export class RestaurantService {
@@ -59,6 +60,33 @@ export class RestaurantService {
       return {
         ok: false,
         error: 'Could not create restaurant',
+      };
+    }
+  }
+
+  async myRestaurants(owner: User, { page }: MyRestaurantsInput) {
+    const pageSize = 3;
+    // const pageSize = 25
+    try {
+      const [restaurants, totalResults] = await this.restaurants.findAndCount({
+        where: { ownerId: owner.id },
+        relations: ['category'],
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        order: {
+          isPromoted: 'DESC',
+        },
+      });
+      return {
+        ok: true,
+        results: restaurants,
+        totalPages: Math.ceil(totalResults / pageSize),
+        totalResults,
+      };
+    } catch {
+      return {
+        ok: false,
+        error: 'Could not find restaurants',
       };
     }
   }
