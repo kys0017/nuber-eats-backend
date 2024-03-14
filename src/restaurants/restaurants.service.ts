@@ -65,11 +65,11 @@ export class RestaurantService {
   }
 
   async myRestaurants(owner: User, { page }: MyRestaurantsInput) {
-    const pageSize = 3;
-    // const pageSize = 25
+    // const pageSize = 3;
+    const pageSize = 25;
     try {
       const [restaurants, totalResults] = await this.restaurants.findAndCount({
-        where: { ownerId: owner.id },
+        where: { owner: { id: owner.id } },
         relations: ['category'],
         skip: (page - 1) * pageSize,
         take: pageSize,
