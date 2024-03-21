@@ -63,21 +63,23 @@ export class OrderService {
         }
         let dishFinalPrice = dish.price;
         // console.log(`Dish price: ${dish.price}`);
-        for (const itemOption of item.options) {
-          const dishOption = dish.options.find(
-            (dishOption) => dishOption.name === itemOption.name,
-          );
-          if (dishOption) {
-            if (dishOption.extra) {
-              dishFinalPrice = dishFinalPrice + dishOption.extra;
-            } else {
-              const dishOptionChoice = dishOption.choices.find(
-                (optionChoice) => optionChoice.name === itemOption.choice,
-              );
-              if (dishOptionChoice) {
-                if (dishOptionChoice.extra) {
-                  // console.log(`$USD + ${dishOptionChoice.extra}`);
-                  dishFinalPrice = dishFinalPrice + dishOptionChoice.extra;
+        if (item?.options) {
+          for (const itemOption of item.options) {
+            const dishOption = dish.options.find(
+              (dishOption) => dishOption.name === itemOption.name,
+            );
+            if (dishOption) {
+              if (dishOption.extra) {
+                dishFinalPrice = dishFinalPrice + dishOption.extra;
+              } else {
+                const dishOptionChoice = dishOption.choices?.find(
+                  (optionChoice) => optionChoice.name === itemOption.choice,
+                );
+                if (dishOptionChoice) {
+                  if (dishOptionChoice.extra) {
+                    // console.log(`$USD + ${dishOptionChoice.extra}`);
+                    dishFinalPrice = dishFinalPrice + dishOptionChoice.extra;
+                  }
                 }
               }
             }
@@ -107,6 +109,7 @@ export class OrderService {
 
       return {
         ok: true,
+        orderId: order.id,
       };
     } catch (error) {
       return {
