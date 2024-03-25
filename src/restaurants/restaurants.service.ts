@@ -74,10 +74,8 @@ export class RestaurantService {
 
   async myRestaurants(
     owner: User,
-    { page }: MyRestaurantsInput,
+    { page, pageSize }: MyRestaurantsInput,
   ): Promise<MyRestaurantsOutput> {
-    // const pageSize = 3;
-    const pageSize = 25;
     try {
       const [restaurants, totalResults] = await this.restaurants.findAndCount({
         where: { owner: { id: owner.id } },
@@ -224,10 +222,9 @@ export class RestaurantService {
   async findCategoryBySlug({
     slug,
     page,
+    pageSize,
   }: CategoryInput): Promise<CategoryOutput> {
     try {
-      const pageSize = 3;
-      // const pageSize = 25
       const category = await this.categories.findOne({ where: { slug } });
       if (!category) {
         return {
@@ -261,9 +258,10 @@ export class RestaurantService {
     }
   }
 
-  async allRestaurants({ page }: RestaurantsInput): Promise<RestaurantsOutput> {
-    const pageSize = 3;
-    // const pageSize = 25
+  async allRestaurants({
+    page,
+    pageSize,
+  }: RestaurantsInput): Promise<RestaurantsOutput> {
     try {
       const [restaurants, totalResults] = await this.restaurants.findAndCount({
         relations: ['category'],
@@ -318,10 +316,9 @@ export class RestaurantService {
   async searchRestaurantByName({
     query,
     page,
+    pageSize,
   }: SearchRestaurantInput): Promise<SearchRestaurantOutput> {
     try {
-      const pageSize = 3;
-      // const pageSize = 25
       const [restaurants, totalResults] = await this.restaurants.findAndCount({
         where: { name: Raw((name) => `${name} ILIKE '%${query}%'`) }, // case insensitive(ILIKE) 를 위해 Raw 사용해서 sql로 직접 db 에 접근.
         take: pageSize,
