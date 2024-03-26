@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import * as Joi from 'Joi';
+import * as Joi from 'joi';
 import { Context } from 'graphql-ws';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from './jwt/jwt.module';
