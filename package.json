@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "description": "",
   "engines": {
-    "node": "18.x"
+    "node": "18.x",
+    "npm": "9.x"
   },
   "author": "",
   "private": true,
