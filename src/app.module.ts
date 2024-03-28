@@ -79,12 +79,14 @@ const TOKEN_KEY = 'x-jwt';
             database: process.env.DB_DATABASE, //'nuber-eats',
           }),
       synchronize: process.env.NODE_ENV !== 'prod',
-      ssl: true,
-      extra: {
-        ssl: {
-          rejectUnauthorized: false,
+      ...(process.env.NODE_ENV === 'prod' && {
+        ssl: true,
+        extra: {
+          ssl: {
+            rejectUnauthorized: false,
+          },
         },
-      },
+      }),
       logging:
         process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
       entities: [
