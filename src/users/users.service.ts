@@ -82,6 +82,7 @@ export class UsersService {
         token,
       };
     } catch (error) {
+      console.log('login error === ', error);
       return {
         ok: false,
       };
