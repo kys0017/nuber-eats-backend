@@ -30,6 +30,7 @@ const TOKEN_KEY = 'x-jwt';
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
+      playground: process.env.NODE_ENV !== 'prod',
       driver: ApolloDriver,
       autoSchemaFile: true,
       subscriptions: {
