@@ -78,7 +78,8 @@ const TOKEN_KEY = 'x-jwt';
             password: process.env.DB_PASSWORD, // host: 'localhost' 이면, password 를 물어보지 않음. password 가 달라도 pass!
             database: process.env.DB_DATABASE, //'nuber-eats',
           }),
-      synchronize: process.env.NODE_ENV !== 'prod',
+      // synchronize: process.env.NODE_ENV !== 'prod',
+      synchronize: true,
       ...(process.env.NODE_ENV === 'prod' && {
         ssl: true,
         extra: {
