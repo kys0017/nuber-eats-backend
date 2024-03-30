@@ -89,6 +89,8 @@ const TOKEN_KEY = 'x-jwt';
       }),
       logging:
         process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
+      migrations: ['dist/migrations/*.js'],
+      migrationsRun: process.env.NODE_ENV === 'prod',
       entities: [
         User,
         Verification,
