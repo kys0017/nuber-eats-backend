@@ -1,28 +1,21 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import * as Joi from 'joi';
 import { Context } from 'graphql-ws';
+import * as Joi from 'joi';
 import { AuthModule } from './auth/auth.module';
+import { CommonModule } from './common/common.module';
+import typeorm from './config/typeorm';
 import { JwtModule } from './jwt/jwt.module';
 import { MailModule } from './mail/mail.module';
-import { OrderItem } from './orders/entities/order-item.entity';
-import { Order } from './orders/entities/order.entity';
 import { OrdersModule } from './orders/orders.module';
-import { Category } from './restaurants/entities/category.entity';
-import { Dish } from './restaurants/entities/dish.entity';
-import { Restaurant } from './restaurants/entities/restaurant.entity';
-import { RestaurantsModule } from './restaurants/restaurants.module';
-import { User } from './users/entities/user.entity';
-import { Verification } from './users/entities/verification.entity';
-import { UsersModule } from './users/users.module';
-import { CommonModule } from './common/common.module';
 import { PaymentsModule } from './payments/payments.module';
-import { Payment } from './payments/entities/payment.entity';
-import { ScheduleModule } from '@nestjs/schedule';
+import { RestaurantsModule } from './restaurants/restaurants.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { UsersModule } from './users/users.module';
 
 //console.log(Joi);
 
@@ -52,6 +45,7 @@ const TOKEN_KEY = 'x-jwt';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
+      load: [typeorm],
       envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
       ignoreEnvFile: process.env.NODE_ENV === 'prod',
       validationSchema: Joi.object({
@@ -67,40 +61,10 @@ const TOKEN_KEY = 'x-jwt';
         MAILGUN_FROM_EMAIL: Joi.string().required(),
       }),
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      ...(process.env.DATABASE_URL
-        ? { url: process.env.DATABASE_URL }
-        : {
-            host: process.env.DB_HOST,
-            port: +process.env.DB_PORT,
-            username: process.env.DB_USERNAME,
-            password: process.env.DB_PASSWORD, // host: 'localhost' 이면, password 를 물어보지 않음. password 가 달라도 pass!
-            database: process.env.DB_DATABASE, //'nuber-eats',
-          }),
-      synchronize: process.env.NODE_ENV !== 'prod',
-      ...(process.env.NODE_ENV === 'prod' && {
-        ssl: true,
-        extra: {
-          ssl: {
-            rejectUnauthorized: false,
-          },
-        },
-      }),
-      logging:
-        process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
-      migrations: ['dist/migrations/*.js'],
-      migrationsRun: process.env.NODE_ENV === 'prod',
-      entities: [
-        User,
-        Verification,
-        Restaurant,
-        Category,
-        Dish,
-        Order,
-        OrderItem,
-        Payment,
-      ],
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) =>
+        configService.get('typeorm'),
     }),
     ScheduleModule.forRoot(),
     JwtModule.forRoot({
