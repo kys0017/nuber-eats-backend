@@ -17,12 +17,17 @@ export class MailService {
     template: string,
     emailVars: EmailVar[],
   ): Promise<boolean> {
+    const email =
+      process.env.NODE_ENV === 'prod'
+        ? emailVars[1].value
+        : this.options.myEmail;
+
     const form = new FormData();
     form.append(
       'from',
       `Nico from Nuber Eats <mailgun@${this.options.domain}>`,
     );
-    form.append('to', `${this.options.myEmail}`);
+    form.append('to', email);
     form.append('subject', subject);
     form.append('template', template);
     emailVars.forEach((eVar) => form.append(`v:${eVar.key}`, eVar.value));
