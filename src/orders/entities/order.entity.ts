@@ -7,8 +7,8 @@ import {
 } from '@nestjs/graphql';
 import { IsEnum, IsNumber } from 'class-validator';
 import { CoreEntity } from '../../common/entities/core.entity';
-import { Restaurant } from './../../../src/restaurants/entities/restaurant.entity';
-import { User } from './../../../src/users/entities/user.entity';
+import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
+import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   Entity,
