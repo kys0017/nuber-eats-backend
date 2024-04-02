@@ -8,12 +8,12 @@ import { Context } from 'graphql-ws';
 import * as Joi from 'joi';
 import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
-import typeorm from './config/typeorm';
 import { JwtModule } from './jwt/jwt.module';
 import { MailModule } from './mail/mail.module';
 import { OrdersModule } from './orders/orders.module';
 import { PaymentsModule } from './payments/payments.module';
 import { RestaurantsModule } from './restaurants/restaurants.module';
+import typeorm, { connectionSource } from './typeorm';
 import { UploadsModule } from './uploads/uploads.module';
 import { UsersModule } from './users/users.module';
 
@@ -62,9 +62,16 @@ const TOKEN_KEY = 'x-jwt';
       }),
     }),
     TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) =>
         configService.get('typeorm'),
+      // dataSource receives the configured DataSourceOptions
+      // and returns a Promise<DataSource>.
+      dataSourceFactory: async () => {
+        const dataSource = await connectionSource.initialize();
+        return dataSource;
+      },
     }),
     ScheduleModule.forRoot(),
     JwtModule.forRoot({

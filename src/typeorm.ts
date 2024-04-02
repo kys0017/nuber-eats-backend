@@ -1,7 +1,7 @@
 import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { DataSource, DataSourceOptions } from 'typeorm';
 import { config as dotenvConfig } from 'dotenv';
+import { DataSource, DataSourceOptions } from 'typeorm';
 
 const path =
   process.env.NODE_ENV === 'prod' || !process.env.NODE_ENV
@@ -28,14 +28,13 @@ const config: TypeOrmModuleOptions = {
         rejectUnauthorized: false,
       },
     },
+    migrationsRun: true,
   }),
-  migrations: ['src/migrations/*{.ts,.js}'],
-  migrationsRun: process.env.NODE_ENV === 'prod',
+  synchronize: process.env.NODE_ENV !== 'prod',
+  migrations: ['dist/migrations/*{.ts,.js}'],
+  entities: ['dist/**/*.entity.{ts,js}'],
   autoLoadEntities: true,
-  synchronize: false,
-  // synchronize: process.env.NODE_ENV !== 'prod',
   logging: process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
-  entities: ['src/**/*.entity{.ts,.js}'],
 };
 
 export default registerAs('typeorm', () => config);
